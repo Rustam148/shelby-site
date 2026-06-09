@@ -7,6 +7,10 @@ public_folder: "/images"
 
 locale: ru
 
+# Формат файлов - JSON
+extension: json
+format: json
+
 collections:
   # ── НАСТРОЙКИ САЙТА ──
   - name: "settings"
@@ -15,6 +19,7 @@ collections:
       - name: "general"
         label: "Общие настройки"
         file: "shelby-site/public/data/settings.json"
+        format: json
         fields:
           - { label: "Телефон", name: "phone", widget: "string" }
           - { label: "Email", name: "email", widget: "string" }
@@ -30,6 +35,7 @@ collections:
       - name: "promo"
         label: "Акции на главной"
         file: "shelby-site/public/data/banners.json"
+        format: json
         fields:
           - label: "Акции"
             name: "items"
@@ -52,10 +58,11 @@ collections:
     label: "📦 Товары"
     folder: "shelby-site/public/data/products"
     create: true
+    extension: json
+    format: json
     slug: "{{slug}}"
     identifier_field: "name"
-    summary: "{{name}} — {{price}} ₸ ({{stock}})"
-    sortable_fields: ["name", "price", "sort_order"]
+    summary: "{{name}} — {{price}} ₸"
     fields:
       - { label: "Название", name: "name", widget: "string" }
 
@@ -80,13 +87,12 @@ collections:
           - { label: "🕐 Под заказ", value: "on_order" }
           - { label: "❌ Нет в наличии", value: "out_of_stock" }
 
-      - { label: "Фото товара", name: "image", widget: "image", required: false, hint: "Загрузите фото генератора" }
-
+      - { label: "Фото товара", name: "image", widget: "image", required: false }
       - { label: "Подзаголовок (мощность, особенности)", name: "subtitle", widget: "string" }
       - { label: "Цена (₸)", name: "price", widget: "string" }
-      - { label: "Старая цена (₸, необязательно)", name: "old_price", widget: "string", required: false }
+      - { label: "Старая цена (необязательно)", name: "old_price", widget: "string", required: false }
 
-      - label: "Метка на карточке"
+      - label: "Метка"
         name: "tag"
         widget: "select"
         required: false
@@ -108,7 +114,6 @@ collections:
         name: "related"
         widget: "list"
         required: false
-        hint: "Введите названия похожих товаров через Enter"
         field: { label: "Название товара", name: "name", widget: "string" }
 
-      - { label: "Активен (показывать на сайте)", name: "active", widget: "boolean", default: true }
+      - { label: "Активен", name: "active", widget: "boolean", default: true }

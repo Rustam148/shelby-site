@@ -8,8 +8,9 @@ public_folder: "/images"
 locale: ru
 
 collections:
+  # ── НАСТРОЙКИ САЙТА ──
   - name: "settings"
-    label: "Настройки сайта"
+    label: "⚙️ Настройки сайта"
     files:
       - name: "general"
         label: "Общие настройки"
@@ -22,15 +23,43 @@ collections:
           - { label: "Заголовок Hero", name: "hero_title", widget: "string" }
           - { label: "Описание Hero", name: "hero_desc", widget: "text" }
 
+  # ── АКЦИИ И БАННЕРЫ ──
+  - name: "banners"
+    label: "🎯 Акции и баннеры"
+    files:
+      - name: "promo"
+        label: "Акции на главной"
+        file: "shelby-site/public/data/banners.json"
+        fields:
+          - label: "Акции"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "Заголовок акции", name: "title", widget: "string" }
+              - { label: "Описание", name: "desc", widget: "string" }
+              - { label: "Текст кнопки", name: "btn", widget: "string", default: "Подробнее" }
+              - label: "Цвет метки"
+                name: "color"
+                widget: "select"
+                options:
+                  - { label: "Золотой", value: "gold" }
+                  - { label: "Красный (Срочно)", value: "red" }
+                  - { label: "Зелёный (Новинка)", value: "green" }
+              - { label: "Активна", name: "active", widget: "boolean", default: true }
+
+  # ── ТОВАРЫ ──
   - name: "products"
-    label: "Товары"
+    label: "📦 Товары"
     folder: "shelby-site/public/data/products"
     create: true
     slug: "{{slug}}"
     identifier_field: "name"
+    summary: "{{name}} — {{price}} ₸ ({{stock}})"
+    sortable_fields: ["name", "price", "sort_order"]
     fields:
       - { label: "Название", name: "name", widget: "string" }
-      - label: "Тип"
+
+      - label: "Тип генератора"
         name: "type"
         widget: "select"
         options:
@@ -39,17 +68,34 @@ collections:
           - { label: "Газовый", value: "gaz" }
           - { label: "Инверторный", value: "invertor" }
           - { label: "Промышленный", value: "prom" }
-      - { label: "Подзаголовок", name: "subtitle", widget: "string" }
+
+      - { label: "Порядок сортировки (1 = первый)", name: "sort_order", widget: "number", default: 99, value_type: "int" }
+
+      - label: "Наличие"
+        name: "stock"
+        widget: "select"
+        default: "in_stock"
+        options:
+          - { label: "✅ В наличии", value: "in_stock" }
+          - { label: "🕐 Под заказ", value: "on_order" }
+          - { label: "❌ Нет в наличии", value: "out_of_stock" }
+
+      - { label: "Фото товара", name: "image", widget: "image", required: false, hint: "Загрузите фото генератора" }
+
+      - { label: "Подзаголовок (мощность, особенности)", name: "subtitle", widget: "string" }
       - { label: "Цена (₸)", name: "price", widget: "string" }
-      - { label: "Старая цена (необязательно)", name: "old_price", widget: "string", required: false }
-      - label: "Метка"
+      - { label: "Старая цена (₸, необязательно)", name: "old_price", widget: "string", required: false }
+
+      - label: "Метка на карточке"
         name: "tag"
         widget: "select"
         required: false
         options:
           - { label: "Нет", value: "" }
-          - { label: "New", value: "new" }
-          - { label: "Хит продаж", value: "hit" }
+          - { label: "🆕 New", value: "new" }
+          - { label: "🔥 Хит продаж", value: "hit" }
+          - { label: "💰 Акция", value: "sale" }
+
       - { label: "Мощность", name: "power", widget: "string" }
       - { label: "Топливо", name: "fuel", widget: "string" }
       - { label: "Объём бака", name: "tank", widget: "string" }
@@ -57,4 +103,12 @@ collections:
       - { label: "Вес", name: "weight", widget: "string" }
       - { label: "Уровень шума", name: "noise", widget: "string" }
       - { label: "Описание", name: "description", widget: "text" }
-      - { label: "Активен", name: "active", widget: "boolean", default: true }
+
+      - label: "Похожие товары"
+        name: "related"
+        widget: "list"
+        required: false
+        hint: "Введите названия похожих товаров через Enter"
+        field: { label: "Название товара", name: "name", widget: "string" }
+
+      - { label: "Активен (показывать на сайте)", name: "active", widget: "boolean", default: true }

@@ -1,0 +1,60 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/images"
+public_folder: "/images"
+
+locale: ru
+
+collections:
+  - name: "settings"
+    label: "Настройки сайта"
+    files:
+      - name: "general"
+        label: "Общие настройки"
+        file: "public/data/settings.json"
+        fields:
+          - { label: "Телефон", name: "phone", widget: "string", default: "+7 (777) 000-00-00" }
+          - { label: "Email", name: "email", widget: "string", default: "info@shelby.kz" }
+          - { label: "Адрес", name: "address", widget: "string", default: "Алматы, ул. Абая 1" }
+          - { label: "Часы работы", name: "hours", widget: "string", default: "Пн–Вс: 9:00–20:00" }
+          - { label: "Заголовок Hero", name: "hero_title", widget: "string", default: "Энергия, которой доверяют" }
+          - { label: "Описание Hero", name: "hero_desc", widget: "text", default: "Премиальное оборудование для дома и бизнеса. Мощность от 3 до 500 кВт. Официальный дилер в Казахстане." }
+
+  - name: "products"
+    label: "Товары"
+    folder: "public/data/products"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "name"
+    fields:
+      - { label: "Название", name: "name", widget: "string" }
+      - label: "Тип"
+        name: "type"
+        widget: "select"
+        options:
+          - { label: "Бензиновый", value: "benzin" }
+          - { label: "Дизельный", value: "dizel" }
+          - { label: "Газовый", value: "gaz" }
+          - { label: "Инверторный", value: "invertor" }
+          - { label: "Промышленный", value: "prom" }
+      - { label: "Подзаголовок (мощность, особенности)", name: "subtitle", widget: "string" }
+      - { label: "Цена (₸)", name: "price", widget: "string" }
+      - { label: "Старая цена (₸, необязательно)", name: "old_price", widget: "string", required: false }
+      - label: "Метка"
+        name: "tag"
+        widget: "select"
+        required: false
+        options:
+          - { label: "Нет", value: "" }
+          - { label: "New", value: "new" }
+          - { label: "Хит продаж", value: "hit" }
+      - { label: "Мощность", name: "power", widget: "string" }
+      - { label: "Топливо", name: "fuel", widget: "string" }
+      - { label: "Объём бака", name: "tank", widget: "string" }
+      - { label: "Время работы", name: "runtime", widget: "string" }
+      - { label: "Вес", name: "weight", widget: "string" }
+      - { label: "Уровень шума", name: "noise", widget: "string" }
+      - { label: "Описание", name: "description", widget: "text" }
+      - { label: "Активен (показывать на сайте)", name: "active", widget: "boolean", default: true }

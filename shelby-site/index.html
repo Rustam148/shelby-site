@@ -603,6 +603,7 @@ const TYPE_LABELS = { benzin:'Бензиновый', dizel:'Дизельный',
 let allProducts = [];
 let settings = {};
 let currentProduct = null;
+window.WHATSAPP_NUM = '77009556527';
 
 async function loadData() {
   try {
@@ -669,6 +670,8 @@ function applySettings() {
   }
   if (settings.address) { const el = document.getElementById('footer-address'); if (el) el.textContent = settings.address; }
   if (settings.hours)   { const el = document.getElementById('footer-hours');   if (el) el.textContent = settings.hours; }
+  // Save WhatsApp number globally
+  window.WHATSAPP_NUM = (settings.whatsapp || '77009556527').replace(/\D/g,'');
 }
 
 function getDefaultProducts() {
@@ -793,10 +796,10 @@ function openProduct(idx) {
       </div>
     </div>
     <div class="pdp-actions">
-      <button class="btn-buy" onclick="${isOut ? "showToast('Товар недоступен')" : "showToast('Заявка принята!')"}" ${isOut?'style="opacity:0.5;cursor:not-allowed"':''}>
-        ${isOut ? 'Нет в наличии' : 'Купить'}
+      <button class="btn-buy" onclick="isOut?showToast('Товар недоступен'):sendWhatsApp(currentProduct.name,'buy')" style="${isOut?'opacity:0.5;cursor:not-allowed':''}">
+        ${isOut ? 'Нет в наличии' : '🟢 Купить в WhatsApp'}
       </button>
-      <button class="btn-cart" onclick="${isOut ? "showToast('Товар недоступен')" : "showToast('Добавлено в корзину')"}" ${isOut?'style="opacity:0.5;cursor:not-allowed"':''}>В корзину</button>
+      <button class="btn-cart" onclick="isOut?showToast('Товар недоступен'):sendWhatsApp(currentProduct.name,'cart')" style="${isOut?'opacity:0.5;cursor:not-allowed':''}">Узнать цену</button>
     </div>
     <div class="pdp-meta">
       <div class="pdp-meta-row"><span class="pdp-meta-icon">🚚</span>Бесплатная доставка по Алматы</div>
@@ -845,6 +848,14 @@ function submitModal() {
   document.getElementById('modal-form-wrap').style.display = 'none';
   document.getElementById('modal-success').style.display = 'block';
   setTimeout(closeModal, 3000);
+}
+
+// ── WhatsApp ──
+function sendWhatsApp(productName, type) {
+  const num = window.WHATSAPP_NUM || '77009556527';
+  const action = type === 'buy' ? 'хочу купить' : 'интересует';
+  const msg = encodeURIComponent(`Здравствуйте! Я ${action} товар: ${productName}. Подскажите подробности.`);
+  window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
 }
 
 // ── Toast ──

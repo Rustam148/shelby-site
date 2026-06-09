@@ -558,7 +558,7 @@ let currentProduct = null;
 
 async function loadData() {
   try {
-    const sRes = await fetch('/public/data/settings.json');
+    const sRes = await fetch('/public/data/settings.json?v=' + Date.now());
     settings = await sRes.json();
     applySettings();
   } catch(e) {}
@@ -576,7 +576,7 @@ async function loadData() {
   const loaded = [];
   for (const f of productFiles) {
     try {
-      const r = await fetch(`/public/data/products/${f}.json`);
+      const r = await fetch(`/public/data/products/${f}.json?v=` + Date.now());
       if (r.ok) { const d = await r.json(); if (d.active !== false) loaded.push(d); }
     } catch(e) {}
   }

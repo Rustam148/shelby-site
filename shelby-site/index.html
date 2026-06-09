@@ -607,9 +607,26 @@ window.WHATSAPP_NUM = '77009556527';
 
 async function loadData() {
   try {
-    const sRes = await fetch('/public/data/settings.json?v=' + Date.now());
-    settings = await sRes.json();
-    applySettings();
+    // Try local path first, then GitHub API
+    let settingsLoaded = false;
+    try {
+      const sRes = await fetch('/public/data/settings.json?v=' + Date.now());
+      if (sRes.ok) {
+        settings = await sRes.json();
+        applySettings();
+        settingsLoaded = true;
+      }
+    } catch(e) {}
+    
+    if (!settingsLoaded) {
+      try {
+        const sRes2 = await fetch('https://raw.githubusercontent.com/Rustam148/shelby-site/main/shelby-site/public/data/settings.json?v=' + Date.now());
+        if (sRes2.ok) {
+          settings = await sRes2.json();
+          applySettings();
+        }
+      } catch(e) {}
+    }
   } catch(e) {}
 
   // Загружаем товары через GitHub API (подхватывает все файлы автоматически)

@@ -796,10 +796,16 @@ function openProduct(idx) {
       </div>
     </div>
     <div class="pdp-actions">
-      <button class="btn-buy" onclick="isOut?showToast('Товар недоступен'):sendWhatsApp(currentProduct.name,'buy')" style="${isOut?'opacity:0.5;cursor:not-allowed':''}">
+      <button class="btn-buy"
+        onclick="handleBuy()"
+        id="pdp-btn-buy"
+        ${isOut ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
         ${isOut ? 'Нет в наличии' : '🟢 Купить в WhatsApp'}
       </button>
-      <button class="btn-cart" onclick="isOut?showToast('Товар недоступен'):sendWhatsApp(currentProduct.name,'cart')" style="${isOut?'opacity:0.5;cursor:not-allowed':''}">Узнать цену</button>
+      <button class="btn-cart"
+        onclick="handleCart()"
+        id="pdp-btn-cart"
+        ${isOut ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>Узнать цену</button>
     </div>
     <div class="pdp-meta">
       <div class="pdp-meta-row"><span class="pdp-meta-icon">🚚</span>Бесплатная доставка по Алматы</div>
@@ -854,8 +860,20 @@ function submitModal() {
 function sendWhatsApp(productName, type) {
   const num = window.WHATSAPP_NUM || '77009556527';
   const action = type === 'buy' ? 'хочу купить' : 'интересует';
-  const msg = encodeURIComponent(`Здравствуйте! Я ${action} товар: ${productName}. Подскажите подробности.`);
-  window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
+  const msg = encodeURIComponent('Здравствуйте! Я ' + action + ' товар: ' + productName + '. Подскажите подробности.');
+  window.open('https://wa.me/' + num + '?text=' + msg, '_blank');
+}
+
+function handleBuy() {
+  if (!currentProduct) return;
+  if (currentProduct.stock === 'out_of_stock') { showToast('Товар недоступен'); return; }
+  sendWhatsApp(currentProduct.name, 'buy');
+}
+
+function handleCart() {
+  if (!currentProduct) return;
+  if (currentProduct.stock === 'out_of_stock') { showToast('Товар недоступен'); return; }
+  sendWhatsApp(currentProduct.name, 'cart');
 }
 
 // ── Toast ──

@@ -283,6 +283,48 @@ footer { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; border-top:1px sol
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+
+/* STOCK BADGE */
+.stock-badge { display:inline-flex; align-items:center; gap:6px; font-size:10px; letter-spacing:2px; text-transform:uppercase; padding:5px 10px; margin-bottom:16px; }
+.stock-in { color:#4caf50; border:1px solid rgba(76,175,80,0.3); background:rgba(76,175,80,0.06); }
+.stock-order { color:var(--gold); border:1px solid rgba(184,149,42,0.3); background:rgba(184,149,42,0.06); }
+.stock-out { color:var(--muted); border:1px solid var(--line); background:transparent; text-decoration:line-through; }
+
+/* PRODUCT PHOTO */
+.pcard-photo { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
+.pcard:hover .pcard-photo { transform:scale(1.04); }
+.pdp-photo { width:100%; height:100%; object-fit:contain; padding:24px; }
+
+/* TAG SALE */
+.ptag-sale { background:#c0392b; color:#fff; }
+
+/* BANNERS */
+#banners-section { border-bottom:1px solid var(--line); overflow:hidden; }
+.banners-grid { display:grid; grid-template-columns:repeat(3,1fr); }
+.banner-card { padding:40px; border-right:1px solid var(--line); position:relative; overflow:hidden; transition:background .3s; }
+.banner-card:last-child { border-right:none; }
+.banner-card:hover { background:var(--bg2); }
+.banner-label { font-size:9px; letter-spacing:3px; text-transform:uppercase; padding:4px 10px; margin-bottom:20px; display:inline-block; }
+.banner-label-gold { background:var(--gold); color:#0c0c0c; }
+.banner-label-red { background:#c0392b; color:#fff; }
+.banner-label-green { background:#27ae60; color:#fff; }
+.banner-title { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:300; color:var(--white); line-height:1.2; margin-bottom:12px; }
+.banner-desc { font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:24px; font-weight:300; }
+.banner-btn { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif; transition:color .2s; padding:0; }
+.banner-btn:hover { color:var(--gold2); }
+
+/* RELATED PRODUCTS */
+.related-section { padding:40px 64px; border-top:1px solid var(--line); }
+.related-label { font-size:10px; letter-spacing:4px; text-transform:uppercase; color:var(--gold); margin-bottom:24px; }
+.related-list { display:flex; gap:16px; flex-wrap:wrap; }
+.related-item { padding:12px 20px; border:1px solid var(--line); font-size:12px; color:var(--muted); cursor:pointer; transition:all .2s; background:none; font-family:'Inter',sans-serif; letter-spacing:1px; }
+.related-item:hover { border-color:var(--gold); color:var(--gold); }
+
+@media(max-width:768px){
+  .banners-grid { grid-template-columns:1fr; }
+  .banner-card { border-right:none; border-bottom:1px solid var(--line); }
+  .related-section { padding:32px 24px; }
+}
 </style>
 </head>
 <body>
@@ -430,6 +472,12 @@ footer { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; border-top:1px sol
     <button class="f-btn" data-cat="invertor">Инверторные</button>
   </div>
   <div class="products reveal" id="home-products"></div>
+
+
+  <!-- BANNERS -->
+  <div id="banners-section" class="reveal" style="display:none">
+    <div class="banners-grid" id="banners-grid"></div>
+  </div>
 
   <div id="cta" class="reveal">
     <div>
@@ -585,6 +633,27 @@ async function loadData() {
   renderProducts('cat-products', allProducts);
   initFilters('home-filters','home-products', allProducts.slice(0,3));
   initFilters('cat-filters','cat-products', allProducts);
+
+  // Load banners
+  try {
+    const br = await fetch('/public/data/banners.json?v=' + Date.now());
+    if (br.ok) {
+      const bdata = await br.json();
+      const active = (bdata.items || []).filter(b => b.active !== false);
+      if (active.length) {
+        const colorMap = { gold:'banner-label-gold', red:'banner-label-red', green:'banner-label-green' };
+        document.getElementById('banners-grid').innerHTML = active.map(b => `
+          <div class="banner-card">
+            <span class="banner-label ${colorMap[b.color]||'banner-label-gold'}">${b.title}</span>
+            <div class="banner-title">${b.title}</div>
+            <div class="banner-desc">${b.desc}</div>
+            <button class="banner-btn" onclick="show('catalog')">${b.btn || 'Подробнее'} →</button>
+          </div>
+        `).join('');
+        document.getElementById('banners-section').style.display = '';
+      }
+    }
+  } catch(e) {}
 }
 
 function applySettings() {
@@ -612,39 +681,84 @@ function getDefaultProducts() {
   ];
 }
 
+function getStockBadge(stock) {
+  if (!stock || stock === 'in_stock') return '<span class="stock-badge stock-in">● В наличии</span>';
+  if (stock === 'on_order') return '<span class="stock-badge stock-order">◷ Под заказ</span>';
+  if (stock === 'out_of_stock') return '<span class="stock-badge stock-out">✕ Нет в наличии</span>';
+  return '';
+}
+
+function getTagHtml(tag) {
+  if (tag === 'new')  return '<div class="ptag ptag-new">New</div>';
+  if (tag === 'hit')  return '<div class="ptag ptag-hit">Хит продаж</div>';
+  if (tag === 'sale') return '<div class="ptag ptag-sale">Акция</div>';
+  return '';
+}
+
 function renderProducts(containerId, products) {
   const el = document.getElementById(containerId);
   if (!el) return;
-  el.innerHTML = products.map(p => `
+  // Sort by sort_order if available
+  const sorted = [...products].sort((a,b) => (a.sort_order||99) - (b.sort_order||99));
+  el.innerHTML = sorted.map(p => {
+    const imgHtml = p.image
+      ? `<img src="${p.image}" class="pcard-photo" alt="${p.name}" loading="lazy">`
+      : (ICONS[p.type] || ICONS.benzin);
+    return `
     <div class="pcard" data-cat="${p.type}" onclick="openProduct(${allProducts.indexOf(p)})">
       <div class="pcard-img">
-        ${ICONS[p.type] || ICONS.benzin}
-        ${p.tag === 'new' ? '<div class="ptag ptag-new">New</div>' : ''}
-        ${p.tag === 'hit' ? '<div class="ptag ptag-hit">Хит продаж</div>' : ''}
+        ${imgHtml}
+        ${getTagHtml(p.tag)}
       </div>
       <div class="pcard-body">
         <div class="pcard-type">${TYPE_LABELS[p.type] || p.type}</div>
         <div class="pcard-name">${p.name}</div>
         <div class="pcard-sub">${p.subtitle}</div>
+        ${getStockBadge(p.stock)}
         <div class="pcard-footer">
           <div class="pcard-price">${p.price} <span>₸</span></div>
-          <button class="pcard-arrow">→</button>
+          <button class="pcard-arrow" style="opacity:${p.stock==='out_of_stock'?'0.4':'1'}">→</button>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function openProduct(idx) {
   currentProduct = allProducts[idx];
   const p = currentProduct;
+  const isOut = p.stock === 'out_of_stock';
+
+  // Update gallery image
+  const mainImg = document.querySelector('.pdp-main-img');
+  if (p.image) {
+    mainImg.innerHTML = `<img src="${p.image}" class="pdp-photo" alt="${p.name}">`;
+  } else {
+    mainImg.innerHTML = `<svg class="pdp-big-svg" viewBox="0 0 280 280" fill="none"><rect x="40" y="100" width="200" height="120" rx="4" fill="#1a1a1a" stroke="rgba(184,149,42,0.4)" stroke-width="1.5"/><rect x="40" y="80" width="200" height="28" rx="4" fill="#1f1f1f" stroke="rgba(184,149,42,0.4)" stroke-width="1.5"/><rect x="56" y="116" width="72" height="72" rx="2" fill="#141414" stroke="rgba(184,149,42,0.25)" stroke-width="1"/><line x1="68" y1="116" x2="68" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><line x1="80" y1="116" x2="80" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><line x1="92" y1="116" x2="92" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><line x1="104" y1="116" x2="104" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><line x1="116" y1="116" x2="116" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><rect x="148" y="116" width="76" height="72" rx="2" fill="#141414" stroke="rgba(184,149,42,0.25)" stroke-width="1"/><circle cx="186" cy="148" r="20" fill="none" stroke="rgba(184,149,42,0.5)" stroke-width="1.5"/><line x1="186" y1="148" x2="199" y2="138" stroke="#b8952a" stroke-width="1.5" stroke-linecap="round"/><circle cx="186" cy="148" r="2.5" fill="#b8952a"/><circle cx="80" cy="220" r="14" fill="#141414" stroke="rgba(184,149,42,0.35)" stroke-width="1.5"/><circle cx="200" cy="220" r="14" fill="#141414" stroke="rgba(184,149,42,0.35)" stroke-width="1.5"/><path d="M133 88 L128 96 L133 96 L128 104" stroke="#b8952a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  }
+
+  // Related products HTML
+  const relatedHtml = (p.related && p.related.length) ? `
+    <div class="related-section">
+      <div class="related-label">Похожие товары</div>
+      <div class="related-list">
+        ${p.related.map(r => {
+          const relIdx = allProducts.findIndex(x => x.name === (r.name || r));
+          return relIdx >= 0
+            ? `<button class="related-item" onclick="openProduct(${relIdx})">${r.name || r}</button>`
+            : `<button class="related-item" onclick="showToast('Товар не найден')">${r.name || r}</button>`;
+        }).join('')}
+      </div>
+    </div>` : '';
+
   document.getElementById('pdp-info').innerHTML = `
     <p class="pdp-brand">Shelby Power Equipment</p>
     <h1 class="pdp-name">${p.name}</h1>
     <p class="pdp-sku">★★★★★ 4.9 · ${TYPE_LABELS[p.type] || p.type}</p>
+    ${getStockBadge(p.stock)}
     <div class="pdp-divider"></div>
     <div class="pdp-price-row">
-      <div class="pdp-price">${p.price} ₸</div>
+      <div class="pdp-price" style="opacity:${isOut?'0.5':'1'}">${p.price} ₸</div>
       ${p.old_price ? `<div class="pdp-old">${p.old_price} ₸</div>` : ''}
     </div>
     ${p.old_price ? `<p class="pdp-savings">↓ Экономия ${(parseInt(p.old_price.replace(/\s/g,'')) - parseInt(p.price.replace(/\s/g,''))).toLocaleString('ru')} ₸</p>` : ''}
@@ -675,14 +789,17 @@ function openProduct(idx) {
       </div>
     </div>
     <div class="pdp-actions">
-      <button class="btn-buy" onclick="showToast('Заявка принята!')">Купить</button>
-      <button class="btn-cart" onclick="showToast('Добавлено в корзину')">В корзину</button>
+      <button class="btn-buy" onclick="${isOut ? "showToast('Товар недоступен')" : "showToast('Заявка принята!')"}" ${isOut?'style="opacity:0.5;cursor:not-allowed"':''}>
+        ${isOut ? 'Нет в наличии' : 'Купить'}
+      </button>
+      <button class="btn-cart" onclick="${isOut ? "showToast('Товар недоступен')" : "showToast('Добавлено в корзину')"}" ${isOut?'style="opacity:0.5;cursor:not-allowed"':''}>В корзину</button>
     </div>
     <div class="pdp-meta">
       <div class="pdp-meta-row"><span class="pdp-meta-icon">🚚</span>Бесплатная доставка по Алматы</div>
       <div class="pdp-meta-row"><span class="pdp-meta-icon">🛡</span>Гарантия 3 года + сервисный центр</div>
       <div class="pdp-meta-row"><span class="pdp-meta-icon">↩</span>Возврат в течение 14 дней</div>
     </div>
+    ${relatedHtml}
   `;
   show('product');
 }

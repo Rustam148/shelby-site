@@ -611,23 +611,24 @@ async function loadData() {
     applySettings();
   } catch(e) {}
 
-  // Загружаем все товары из папки
-  const productFiles = [
-    'powermax-pro-8500',
-    'silent-diesel-15d',
-    'inverter-elite-3600i',
-    'industrial-100d',
-    'gasline-6500g',
-    'home-basic-5000'
-  ];
-
+  // Загружаем товары через GitHub API (подхватывает все файлы автоматически)
   const loaded = [];
-  for (const f of productFiles) {
-    try {
-      const r = await fetch(`/public/data/products/${f}.json?v=` + Date.now());
-      if (r.ok) { const d = await r.json(); if (d.active !== false) loaded.push(d); }
-    } catch(e) {}
-  }
+  try {
+    const apiRes = await fetch('https://api.github.com/repos/Rustam148/shelby-site/contents/shelby-site/public/data/products');
+    if (apiRes.ok) {
+      const files = await apiRes.json();
+      const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+      for (const file of jsonFiles) {
+        try {
+          const r = await fetch(file.download_url + '?v=' + Date.now());
+          if (r.ok) {
+            const d = await r.json();
+            if (d.active !== false && d.name) loaded.push(d);
+          }
+        } catch(e) {}
+      }
+    }
+  } catch(e) {}
   allProducts = loaded.length ? loaded : getDefaultProducts();
   renderProducts('home-products', allProducts.slice(0,3));
   renderProducts('cat-products', allProducts);

@@ -676,7 +676,7 @@ function applySettings() {
   if (settings.address) { const el = document.getElementById('footer-address'); if (el) el.textContent = settings.address; }
   if (settings.hours)   { const el = document.getElementById('footer-hours');   if (el) el.textContent = settings.hours; }
   // Save WhatsApp number globally
-  window.WHATSAPP_NUM = (settings.whatsapp || '77009556527').replace(/\D/g,'');
+  window.WHATSAPP_NUM = (settings.whatsapp || '77473939529').replace(/\D/g,'');
 }
 
 function getDefaultProducts() {
@@ -863,7 +863,7 @@ function submitModal() {
 
 // ── WhatsApp ──
 function sendWhatsApp(productName, type) {
-  const num = window.WHATSAPP_NUM || '77009556527';
+  const num = window.WHATSAPP_NUM || '77473939529';
   const action = type === 'buy' ? 'хочу купить' : 'интересует';
   const msg = encodeURIComponent('Здравствуйте! Я ' + action + ' товар: ' + productName + '. Подскажите подробности.');
   window.open('https://wa.me/' + num + '?text=' + msg, '_blank');

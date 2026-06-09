@@ -2,7 +2,7 @@ backend:
   name: git-gateway
   branch: main
 
-media_folder: "public/images"
+media_folder: "shelby-site/public/images"
 public_folder: "/images"
 
 locale: ru
@@ -13,18 +13,18 @@ collections:
     files:
       - name: "general"
         label: "Общие настройки"
-        file: "public/data/settings.json"
+        file: "shelby-site/public/data/settings.json"
         fields:
-          - { label: "Телефон", name: "phone", widget: "string", default: "+7 (777) 000-00-00" }
-          - { label: "Email", name: "email", widget: "string", default: "info@shelby.kz" }
-          - { label: "Адрес", name: "address", widget: "string", default: "Алматы, ул. Абая 1" }
-          - { label: "Часы работы", name: "hours", widget: "string", default: "Пн–Вс: 9:00–20:00" }
-          - { label: "Заголовок Hero", name: "hero_title", widget: "string", default: "Энергия, которой доверяют" }
-          - { label: "Описание Hero", name: "hero_desc", widget: "text", default: "Премиальное оборудование для дома и бизнеса. Мощность от 3 до 500 кВт. Официальный дилер в Казахстане." }
+          - { label: "Телефон", name: "phone", widget: "string" }
+          - { label: "Email", name: "email", widget: "string" }
+          - { label: "Адрес", name: "address", widget: "string" }
+          - { label: "Часы работы", name: "hours", widget: "string" }
+          - { label: "Заголовок Hero", name: "hero_title", widget: "string" }
+          - { label: "Описание Hero", name: "hero_desc", widget: "text" }
 
   - name: "products"
     label: "Товары"
-    folder: "public/data/products"
+    folder: "shelby-site/public/data/products"
     create: true
     slug: "{{slug}}"
     identifier_field: "name"
@@ -39,9 +39,9 @@ collections:
           - { label: "Газовый", value: "gaz" }
           - { label: "Инверторный", value: "invertor" }
           - { label: "Промышленный", value: "prom" }
-      - { label: "Подзаголовок (мощность, особенности)", name: "subtitle", widget: "string" }
+      - { label: "Подзаголовок", name: "subtitle", widget: "string" }
       - { label: "Цена (₸)", name: "price", widget: "string" }
-      - { label: "Старая цена (₸, необязательно)", name: "old_price", widget: "string", required: false }
+      - { label: "Старая цена (необязательно)", name: "old_price", widget: "string", required: false }
       - label: "Метка"
         name: "tag"
         widget: "select"
@@ -57,4 +57,4 @@ collections:
       - { label: "Вес", name: "weight", widget: "string" }
       - { label: "Уровень шума", name: "noise", widget: "string" }
       - { label: "Описание", name: "description", widget: "text" }
-      - { label: "Активен (показывать на сайте)", name: "active", widget: "boolean", default: true }
+      - { label: "Активен", name: "active", widget: "boolean", default: true }

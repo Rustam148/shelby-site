@@ -702,8 +702,10 @@ function renderProducts(containerId, products) {
   // Sort by sort_order if available
   const sorted = [...products].sort((a,b) => (a.sort_order||99) - (b.sort_order||99));
   el.innerHTML = sorted.map(p => {
-    const imgHtml = p.image
-      ? `<img src="${p.image}" class="pcard-photo" alt="${p.name}" loading="lazy">`
+    const imgSrc = p.image ? p.image.replace(/^\/images\//, '/public/images/') : null;
+    const imgHtml = imgSrc
+      ? `<img src="${imgSrc}" class="pcard-photo" alt="${p.name}" loading="lazy" onerror="this.parentNode.innerHTML='${(ICONS[p.type] || ICONS.benzin).replace(/'/g, "\'")}'"`
+      + `>`
       : (ICONS[p.type] || ICONS.benzin);
     return `
     <div class="pcard" data-cat="${p.type}" onclick="openProduct(${allProducts.indexOf(p)})">
@@ -732,8 +734,9 @@ function openProduct(idx) {
 
   // Update gallery image
   const mainImg = document.querySelector('.pdp-main-img');
-  if (p.image) {
-    mainImg.innerHTML = `<img src="${p.image}" class="pdp-photo" alt="${p.name}">`;
+  const pdpImgSrc = p.image ? p.image.replace(/^\/images\//, '/public/images/') : null;
+  if (pdpImgSrc) {
+    mainImg.innerHTML = `<img src="${pdpImgSrc}" class="pdp-photo" alt="${p.name}">`;
   } else {
     mainImg.innerHTML = `<svg class="pdp-big-svg" viewBox="0 0 280 280" fill="none"><rect x="40" y="100" width="200" height="120" rx="4" fill="#1a1a1a" stroke="rgba(184,149,42,0.4)" stroke-width="1.5"/><rect x="40" y="80" width="200" height="28" rx="4" fill="#1f1f1f" stroke="rgba(184,149,42,0.4)" stroke-width="1.5"/><rect x="56" y="116" width="72" height="72" rx="2" fill="#141414" stroke="rgba(184,149,42,0.25)" stroke-width="1"/><line x1="68" y1="116" x2="68" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><line x1="80" y1="116" x2="80" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><line x1="92" y1="116" x2="92" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><line x1="104" y1="116" x2="104" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><line x1="116" y1="116" x2="116" y2="188" stroke="rgba(184,149,42,0.15)" stroke-width="1"/><rect x="148" y="116" width="76" height="72" rx="2" fill="#141414" stroke="rgba(184,149,42,0.25)" stroke-width="1"/><circle cx="186" cy="148" r="20" fill="none" stroke="rgba(184,149,42,0.5)" stroke-width="1.5"/><line x1="186" y1="148" x2="199" y2="138" stroke="#b8952a" stroke-width="1.5" stroke-linecap="round"/><circle cx="186" cy="148" r="2.5" fill="#b8952a"/><circle cx="80" cy="220" r="14" fill="#141414" stroke="rgba(184,149,42,0.35)" stroke-width="1.5"/><circle cx="200" cy="220" r="14" fill="#141414" stroke="rgba(184,149,42,0.35)" stroke-width="1.5"/><path d="M133 88 L128 96 L133 96 L128 104" stroke="#b8952a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   }

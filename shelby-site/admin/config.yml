@@ -27,6 +27,7 @@ collections:
           - { label: "Часы работы", name: "hours", widget: "string" }
           - { label: "Заголовок Hero", name: "hero_title", widget: "string" }
           - { label: "Описание Hero", name: "hero_desc", widget: "text" }
+          - { label: "WhatsApp номер (с кодом страны, например 77071234567)", name: "whatsapp", widget: "string", default: "77009556527" }
 
   # ── АКЦИИ И БАННЕРЫ ──
   - name: "banners"

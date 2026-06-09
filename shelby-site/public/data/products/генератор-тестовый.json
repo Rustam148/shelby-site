@@ -1,0 +1,18 @@
+{
+  "power": "12345",
+  "active": true,
+  "price": "123456789",
+  "tank": "666",
+  "name": "Генератор тестовый ",
+  "sort_order": 1,
+  "fuel": "321",
+  "stock": "in_stock",
+  "subtitle": "НЕТУ ОСОБЕННОСТЕЙ",
+  "weight": "12332",
+  "runtime": "1357",
+  "noise": "1",
+  "type": "benzin",
+  "tag": "hit",
+  "image": "/images/233_original.jpg",
+  "description": "нет описания"
+}
